@@ -226,4 +226,50 @@ case expression of pattern -> result
 
 2. 适用场景：anywhere
 
+### 递归
+
+> 如果你还不明白，就读这句话
+
+命令式语言要求告知如何计算，函数式要求声明什么样的问题
+
+重要的不是求解步骤二是定义问题与解的描述
+
+模式匹配加上 `Recursion` 非常常见
+
+1. `replicate`
+
+2. `take`
+
+3. `repeat`
+
+4. `reverse`
+
+5. `repeat`
+
+    注：haskell 函数是惰性的，能够获取无限列表，只要能保证在某位置截断它
+
+6. `zip`
+
+7. `elem`
+    注：书上只是 `Eq` 类型类的实例，而我们 `:t elem` 可以看到还有一个 `Foldable t`
+
+#### 排序
+
+5 行快排，一生无悔入 haskell
+
+``` haskell
+quickSort :: (Eq a) => [a] -> [a]
+quickSort (x:xs) =
+    let smallerOrEqual = [a | a <- xs, a <= x]
+        larger = [a | a <- xs, a > x]
+    in quickSort quickSortOrEqual ++ [x] ++ quickSort larger
+```
+
+#### 总结
+
+对于递归的思路，首先找基准条件，应对特殊的输入简单非递归函数
+
+然后分解成一个或多个子问题并递归地调用自身
+
+
 
