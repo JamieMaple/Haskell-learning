@@ -1,5 +1,4 @@
 lucky :: Int -> String
-
 lucky 7 = "LUCKEY NUMBER SEVEN"
 lucky x = "Sorry, you're out of luck, pal!"
 
@@ -88,3 +87,4 @@ quickSort (x:xs) =
     let smallerOrEqual = [a | a <- xs, a <= x]
         larger = [a | a <- xs, a > x]
     in quickSort smallerOrEqual ++ [x] ++ quickSort larger
+
