@@ -5,6 +5,14 @@
 
 `ghci`
 
+对于想要类型声明，可以使用 `:set +m`
+
+对于多条语句可以使用 `:{` 以及 `:}`
+
+`~/.haskeline` 添加 `set editing-mode vi` 可开启 `vi` 模式
+
+[more ghci](https://downloads.haskell.org/~ghc/7.2.2/docs/html/users_guide/interactive-evaluation.html)
+
 ### 一切都是函数
 
 `*` 类似这样的操作符被称为`中缀函数`.
@@ -70,7 +78,7 @@ range
 
 函数式编程思路：先取一个初始的集合并将其变形，执行过滤条件
 
-## types
+### types
 
 1. `:t {variables}`
 
@@ -85,7 +93,6 @@ range
 5. `Float` 单精度浮点数
 
 6. `Double` 双精度浮点数
-
 7. `Bool` -> `True` `False`
 
 8. `Char` 表示的是一个 Unicode 字符
@@ -104,6 +111,119 @@ range
 
     4. `Read` 类型类：与 `Show` 相反的类型类，可以取字符串做参数然后转为某个实例的类型 
 
-    5. 
+    5. `Enum` 类型类：可以美剧的类型主要有 `()` `Bool` `Char` `Ordering` `Int` `Integer` `Float` `Double`
+
+    6. `Bounded`  类型类：`maxBound` 和 `minBound`，如果元组中项的类型都属于 Bounded 类型类的实例，那么该元组也属于 `Bounded` 实例
+
+    7. `Num`  类型类：`Int` `Double` 等，只有已经属于 `Show` 和 `Eq` 实例的类型才能成为 `Num` 类型的实例
+
+    8. `Floating` 类型类：`Float` 和 `Double`
+
+    9. `Integer` 类型类：`Int` 和 `Integer`
+
+### 函数
+
+#### 模式匹配
+
+``` haskell
+lucky :: Int -> String
+lucky 7 = "LUCKY NUMBER SEVEN!"
+lucky x = "Sorry, you're out of luck, pal!"
+```
+
+调用 `lucky` 时会自动将传入的参数从上往下的检查各个模式
+
+万能模式:  `n|x|y|(lowerCaseLetter)`
+
+2. 元组的模式匹配
+
+比如可以计算空间向量
+
+3. 列表与列表推导式的模式匹配
+
+比如 [1,2,3] 可以看做是 1:2:3:[] 的语法糖
+
+4. `As` 模式
+
+#### 哨位
+
+1. `|`
+
+``` haskell
+bmiTell :: Double -> String
+bmiTell bmi
+    | bmi <= 18.5 = "You're underweight, you emo, you!"
+    | bmi <= 25.0 = "You're supposedly normal, Pffft, I bet you're ugly!"
+    | bmi <= 30.0 = "You're fat! Lose some weight, fatty!"
+    | otherwise = "You're a whale, congratulations!"
+```
+
+应该会优于一堆 `if else` 命令式的语句
+
+#### `where` ?!
+
+``` haskell
+bmiTell :: Double -> Double -> String
+bmiTell weight height
+    | bmi <= skinny = "You're underweight, you emo, you!"
+    | bmi <= normal = "You're supposedly normal. Pffft, I bet you're ugly!"
+    | bmi <= fat = "You're a whale, congulations!"
+    where bmi = weight / height ^ 2
+          skinny = 18.5
+          normal = 25.0
+          fat = 30.0
+```
+
+可以适当保留一部分中间变量方便使用
+
+1. `where` 中定义的变量只对本函数可见，其他模式不可见，因此不用担心污染到全局变量
+
+2. `where` 中也可以进行模式匹配
+
+3. `where` 中甚至可以定义函数
+
+``` haskell
+calcBmis :: [(Double, Double)] -> [Double]
+calcBmis xs = [bmi w h | (w, h) <- xs]
+    where bmi weight height = weight / height ^ 2
+```
+
+4. `let`
+
+`let` 表达式，创建局部变量，也可以使用模式匹配
+
+1. 格式：`let <bindings> in <expressions>` 在 `let` 中绑定的变量仅对 `in` 部分是可见的
+
+2.  常见的用法：
+
+    1.  局部作用域中定义函数：`let square x = x * x in square 10`
+
+    2.  分号可以在一行中分开绑定多个变量
+
+    3.  从元组中取值：`let (a,b,c) = (1,2,3) in a * b * c`
+
+    4. `let` 和 `where` 有区别
+
+    5. 列表推导式中使用，可以用于绑定关键字
+
+3. GHCi 中使用 `let`
+
+    1. 省略 `in` 相当于很大范围的作用域？
+
+    2. 没有省略 `in` 会有返回值，不接收 GHCi 就会打印
+
+#### `case` 表达式
+
+函数定义的模式匹配本质上就是 `case` 表达式的语法糖
+
+1. 语法结构：
+
+``` haskell
+case expression of pattern -> result
+                   pattern -> result
+                   pattern -> result
+```
+
+2. 适用场景：anywhere
 
 
