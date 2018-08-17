@@ -23,3 +23,25 @@ PS: 如果分离的代码足够独立，相互之间没有过多依赖 -- 松耦
 
 4. `Maybe` 类型与 `[a]` 类型相似，它可能是 `Nothing` 还可能是 `Just {something}`
 
+## 映射键与值
+
+1. 关联列表实现：常见的二元组列表，首项作为 key
+
+2. `Data.List` -> `lookup`
+
+3. `Data.map` 可以使用 `fromList` 将 list 转成 map，如果 key 重复，新的替换掉老的
+
+## 构造自己的模块
+
+1. 先定义模块名称，得与文件名相同(好像不一定必须要相同)
+
+``` haskell
+module moduleName
+(
+
+) where
+-- export functions inside parentless
+```
+
+2. 可以划分模块的子模块，子模块也可以有自己的子模块
+
