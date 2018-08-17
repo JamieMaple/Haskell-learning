@@ -6,6 +6,9 @@ PS: 如果分离的代码足够独立，相互之间没有过多依赖 -- 松耦
 
 之前我们能在 GHCi 环境下调用的模块、类型以及类型类都是 `Prelude` 模块的和一部分，默认情况下，`Prelude` 是会自动被导入的
 
+对于 `GHCi` 而言，[导入模块](https://stackoverflow.com/questions/36206578/ghci-how-to-import-modules-in-a-folder)
+
+
 ## 导入模块
 
 `import <optional>qualified {moduleName} <optional>hidding <optional>(...funcs) <optional>(as {alias})` 导入模块必须放在任何函数定义之前
