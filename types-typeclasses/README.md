@@ -50,6 +50,7 @@ data Person = Person { firstName :: String
 ``` haskell
 data Maybe a = Nothing | Just a
 -- 这里的 a 就是一个类型参数
+-- | 代表或
 ```
 
 显式：`Just 3 :: Int`
@@ -58,5 +59,76 @@ data Maybe a = Nothing | Just a
 
 
 > 然而在 haskell 中有一项严格的约定，那就是永远不要在 data 中添加类约束
+
+## 派生类型
+
+> 类型类更像是接口，而非传统 OOP 类的蓝图
+
+1. 实现 `Eq`：会先检查值构造器是否一致，然后检查其中每一对字段数据是否相等
+
+2. 实现 `Read` 和 `Show`：`Show` 类型可以让派生类能够在屏幕上打印出来，`Read` 类型能从字符串中**通过类型注释** 转化成想要的类型
+
+3. 实现 `Ord`：对于拥有多个值构造器的类型，定义在前面的更小
+
+    所以 `True` > `False`，`Maybe` 类也可以比较大小，`Nothing` 最小
+
+    但是函数无法比较大小，并不是 `Ord` 类的实例
+
+4. `Bounded` `Enum` 等
+
+``` haskell
+data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
+    deriving (Eq, Ord, Show, Read, Bounded, Enum)
+-- 所有值构造器都是空元（nullary）
+```
+
+`Enum` 类型：`succ` 获得后继，`prev` 获取前驱
+
+## 类型别名
+
+1. `[Char]` 和 `String` 等价就是基于类型别名
+
+``` haskell 
+type String = [Char]
+```
+
+应当注意的是 haskell 中类型别名并不会创造新类型，`data` 创建新类型
+
+2. 参数化类型别名
+
+``` haskell 
+type AssocList k v = [(k,v)]
+
+findVal :: (Eq k) => k -> AssocList k v -> Maybe v
+
+type IntMap = AssocList Int -- 柯里化部分应用
+```
+
+注：类型构造器与值构造器是不一样的
+
+所以以下不正确
+
+``` haskell
+Float 1
+AssocList [(1,2)]
+```
+
+而应当这样
+
+``` haskell
+1 :: Float
+[(1,2)] :: AssocList Int Float
+```
+
+类型别名只能在 Haskell 的类型部分在使用。类型部分包括了 `data`、`type` 以及 `类型声明(::)`
+
+2. `Either`
+
+``` haskell
+data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)
+-- 一般 Left 的类型表示错误的类型，而 Right 代表正确的
+```
+
+## 递归数据结构
 
 
