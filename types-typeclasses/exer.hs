@@ -99,5 +99,48 @@ treeElem x (Node a left right)
     | x > a  = treeElem x left
     | x < a  = treeElem x right
 
+data TrafficLight = Red | Green | Yellow
 
+instance Eq TrafficLight where
+    Red == Red = True
+    Green == Green = True
+    Yellow == Yellow = True
+    _ == _ = False
 
+instance Show TrafficLight where
+    show Red    = "Red light"
+    show Green  = "Green light"
+    show Yellow = "Yellow light"
+
+class YesNo a where
+    yesno :: a -> Bool
+
+instance YesNo Int where
+    yesno 0 = False
+    yesno _ = True
+
+instance YesNo [a] where
+    yesno [] = False
+    yesno _  = True
+
+instance YesNo Bool where
+    yesno = id -- `id` 是标准库内将参数原样返回的函数
+
+instance YesNo (Maybe a) where
+    yesno (Just _) = True
+    yesno Nothing  = False
+
+instance YesNo (Tree a) where
+    yesno EmptyTree = False
+    yesno _         = True
+
+instance YesNo TrafficLight where
+    yesno Red = False
+    yesno _ = True
+
+yesnoIf :: YesNo y => y -> a -> a -> a
+yesnoIf val yr nr = 
+    if yesno val
+    then yr
+    else nr
+ 

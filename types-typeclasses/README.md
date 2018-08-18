@@ -167,3 +167,68 @@ data Tree a = EmptyTree | Node (Tree a) (Tree a) deriving (Show)
 树的一些列操作不像其他语言那样，而是返回一个新树（purity），这样并不低效，因为底层有优化
 
 
+## 类型类
+
+1. Eq 类型类：
+
+``` haskell
+-- 定义一个新类型类 Eq，其中 a 为类型变量
+class Eq a where
+    (==) :: a -> a -> Bool
+    (/=) :: a -> a -> Bool
+    x == y = not (x /= y)
+    x /= y = not (x == y)
+-- 函数体的实现是可选的，必须要的是类型声明
+-- 函数体的是以交叉递归实现的
+-- 该种风格被称为类型类的最小完备定义
+-- 函数体并非函数的实际类型
+```
+
+2. 手工实现类型类
+
+``` haskell
+instance <Class> <Type> where
+-- implementation
+```
+
+`Show` 类型的最小完备定义要求实现 `show` 函数
+
+3. 子类化
+
+``` haskell
+-- 类型约束，更是子类化
+class (Eq a) => Num a where
+```
+
+4. 作为类型实例的带参数类型
+
+``` haskell
+instance (Eq m) => Eq (Maybe m) where
+    ....
+```
+
+查看某个类型类的定义以及实例：`:info {type}`，对类型和类型构造器都有效
+
+## Yes-No 类型类
+
+Haskell 严格检查 Bool，但是我们可以实现有一种类似 JS 的布尔隐式类型转化功能
+
+``` haskell
+class YesNo a where
+    yesno :: a -> Bool
+
+instance YesNo Int where
+    yesno 0 = False
+    yesno _ = True
+
+instance YesNo [a] where
+    yesno [] = False
+    yesno _ = True
+
+instance YesNo Bool where
+    yesno = id -- `id` 是标准库内将参数原样返回的函数
+-- ....
+```
+
+
+
