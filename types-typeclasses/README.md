@@ -131,4 +131,39 @@ data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)
 
 ## 递归数据结构
 
+1. List（形如链表）
+
+``` haskell
+data List a = Empty | Cons a (List a) deriving (Eq, Read, Show, Ord)
+
+-- equal to
+data List a = Empty | Cons { ListHead :: a, ListTail :: List a } deriving (Eq, Read, Show, Ord)
+```
+
+其中 `Empty` 相当于 `[]`，`Cons` 相当于 `:`
+
+``` haskell
+-- 实现标准库的 List
+infixr 5 :
+data List a = Empty | a : (List a) deriving (Show, Read, Eq, Ord)
+
+infixr 5 ++
+(++) :: List a -> List a -> List a
+Empty  ++ ys = ys
+(x:xs) ++ ys = (:) x (xs ++ ys)
+```
+
+模式匹配本质上就是对值构造器的匹配，所以也可以对一些基本值进行值构造器的匹配
+
+2. 树形结构
+
+``` haskell
+-- binary search tree
+data Tree a = EmptyTree | Node (Tree a) (Tree a) deriving (Show)
+```
+
+注：haskell 的数据结构不能像 c 等某些语言那样使用直接使用指针，haskell 只有值
+
+树的一些列操作不像其他语言那样，而是返回一个新树（purity），这样并不低效，因为底层有优化
+
 

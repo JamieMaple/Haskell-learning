@@ -69,4 +69,35 @@ lockerLookup lockerNum map = case Map.lookup lockerNum map of
                          then Right code
                          else Left $ "Locker" ++ show lockerNum ++ " is Already taken!"
 
+-- data structure recursion
+-- data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)
+
+infixr 5 :-:
+data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)
+
+infixr 5 ^++
+(^++) :: List a -> List a -> List a
+Empty ^++ ys = ys
+(x:-:xs) ^++ ys = (:-:) x $ xs ^++ ys
+
+data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show)
+
+singleton :: a -> Tree a
+singleton x = Node x EmptyTree EmptyTree
+
+treeInsert :: (Ord a) => a -> Tree a -> Tree a
+treeInsert x EmptyTree = singleton x
+treeInsert x (Node a left right)
+    | x == a = Node x left right -- same then replace
+    | x > a  = Node a (treeInsert x left) right -- save right sub tree
+    | x < a  = Node a left (treeInsert x right) -- save left sub tree
+
+treeElem :: (Ord a) => a -> Tree a -> Bool
+treeElem _ EmptyTree = False
+treeElem x (Node a left right)
+    | x == a = True
+    | x > a  = treeElem x left
+    | x < a  = treeElem x right
+
+
 
