@@ -230,5 +230,40 @@ instance YesNo Bool where
 -- ....
 ```
 
+## Functor 类型类
+
+> 可以用来映射的事物
+
+``` haskell
+-- 其中 f 是取一个参数的类型构造器
+class Functor f where
+    fmap :: (a -> b) -> f a  -> f b
+-- 很类似 list 的 map 函数
+```
+
+凡是拥有容器性质的类都可以视作 `Functor`
+
+类似树的数据结构（或者说容器），也是一种 `Functor`
+
+但是如果对二叉搜索树做映射没法保证依然是二叉搜索树
+
+``` haskell
+-- instance Functor (Either a) where
+    fmap :: (b -> c) -> Either a b -> Either a c
+
+-- instance Functor (Map.Map k) where
+    fmap :: (v -> v') -> Map.Map k v -> Map.Map k v'
+```
+
+## kind 和无名类型
+
+1. 类型构造器与函数类似，同样可以柯里化与部分应用
+
+2. 函数同时也是值，有自己的类型，类型也有类型也就是 `Kind`
+
+3. `:k {type}` 可以在 GHCi 中查看类型的 `Kind`，其中 `*` 代表了具体类型
+
+4. `:t` 检查值的类型，`:k` 检查类型的 `Kind`，可以类似看各自身上的标签
+
 
 

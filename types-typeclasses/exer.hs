@@ -136,11 +136,15 @@ instance YesNo (Tree a) where
 
 instance YesNo TrafficLight where
     yesno Red = False
-    yesno _ = True
+    yesno _   = True
 
 yesnoIf :: YesNo y => y -> a -> a -> a
 yesnoIf val yr nr = 
     if yesno val
     then yr
     else nr
+ 
+instance Functor Tree where
+    fmap f EmptyTree = EmptyTree
+    fmap f (Node x left right) = Node (f x) (fmap f left) (fmap f right)
  
