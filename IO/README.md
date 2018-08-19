@@ -72,9 +72,47 @@ sequence $ map print [1,2,3]
 
 与 `mapM` 类似，但是参数列表与其相反
 
+## 文件与流
 
+`<` 重定向
 
+`getContents` 是惰性 IO
 
+`interact` 取一个
 
+## 读写文件
 
+包`System.IO`
+
+关键字：`stdin` `stdout`
+
+``` haskell
+openFile :: FilePath -> IOMode -> IO Handle
+hGetContents :: Handle -> IO String
+hClose :: Handle -> IO ()
+type FilePath = String
+data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode
+withFile :: FilePath -> IOMode -> (Handle -> IO a) -> IO a
+bracket :: IO a -> (IO a -> IO b) -> (IO a -> IO c) -> IO c -- Control.Exception
+readFile :: FilePath -> IO String
+writeFile :: FilePath -> String -> IO ()
+appendFile :: FilePath -> String -> IO () -- 当文件存在时，会在文件末尾添加内容
+
+-- FilePath 只是 String 的别名
+-- 返回的是一个句柄（Handle）
+```
+
+`hGetContents` 也是一种惰性函数，句柄获取到的只是文件位置的指针
+
+`hClose` 关闭文件
+
+`withFile` 很容易和 lambda 联合起来使用，同时它会确保文件句柄被关闭
+
+`bracket` 🤔 感觉有点类似 `defer` 的机制，第一个参数请求资源的 IO 操作，第二个处理资源释放的参数，第三个主要操作函数
+
+`bracketOnError` 与上面的函数不同，它比较适合用来处理异常发生的情况
+
+还有很多用以处理 `Handle` 句柄的函数，以 `h` 开头
+
+我们可以使用 `cat` 把文本输出到终端
 
