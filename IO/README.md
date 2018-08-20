@@ -116,3 +116,23 @@ appendFile :: FilePath -> String -> IO () -- 当文件存在时，会在文件�
 
 我们可以使用 `cat` 把文本输出到终端
 
+`openTempFile`
+
+## 命令行参数
+
+`System.Environment` 包
+
+`getProgName` 获取程序名
+
+`getArgs`  获取参数列表
+
+## 随机性
+
+``` haskell
+import System.Random
+random :: (RandomGen g, Random a) => g -> (a, g)
+random' :: (RandomGen g, Random a) => g -> [a]
+```
+
+d
+

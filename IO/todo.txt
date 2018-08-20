@@ -1,1 +1,2 @@
+learningHaskell
 walking, running
