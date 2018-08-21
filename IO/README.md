@@ -132,7 +132,48 @@ appendFile :: FilePath -> String -> IO () -- 当文件存在时，会在文件�
 import System.Random
 random :: (RandomGen g, Random a) => g -> (a, g)
 random' :: (RandomGen g, Random a) => g -> [a]
+
+randoms' :: (RandomGen g, Random a) => g -> [a]
+randoms' gen = let (value, newGen) = random gen in value:randoms' Gen
+
+-- in a range and generate a random
+randomR :: (Random a, RandomGen g) => (a, a) -> g -> (a, g)
+
+-- in a range and generate a array of random
+randomRs :: (Random a, RandomGen g) => (a, a) -> g -> [a]
+
+-- `newStdGen` 会分裂 `getStdGen`
+getStdGen :: IO StdGen
+
+newStdGen :: IO StdGen
 ```
 
-d
+
+## 字节串
+
+在 Haskell 中，列表用以表示流，同时也是惰性的
+
+用字符串的方式处理文件比较慢，其中有元素要求值时，其余部分只是一个徐洛将会产生列表的承诺（thunk）
+
+Haskell 中 thunk 是一个延迟计算，通过它来实现惰性
+
+读取大文件的弊端 -> 字节串（bytestring）
+
+
+1. 字节串的两种风格
+
+字节串每个元素占一个字节（8位）
+
+严格的 `strict` 以及惰性的 `lazy`
+
+严格的：`Data.ByteString` 完全没有惰性，所以没法求无限长度的字节串
+
+惰性的：`Data.ByteString.Lazy`采取了一种块（chunk）的内存结构（可能每块 64k），类似字符串列表
+
+`pack` 接受一个字节列表 `[Word8]` 返回一个字节串，`unpack` 与之相反
+
+字节串可以在使用字符串性能不够时作为优化的点
+
+等等。。。
+
 
