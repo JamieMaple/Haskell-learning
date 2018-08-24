@@ -41,9 +41,8 @@ getRandoms n gen =
 
 main = do
     --contents <- getContents
-    gen <- getStdGen
-    let randoms = getRandoms 24 gen
-        threes = groupsOf 3 randoms
+    randoms <- fmap (getRandoms 24) getStdGen
+    let threes = groupsOf 3 randoms
         roadSystem = map (\[a,b,c] -> Section a b c) threes 
         path = optimalPath roadSystem
         pathString = concat $ map (show . fst) path
