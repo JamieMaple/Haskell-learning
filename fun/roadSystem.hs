@@ -9,7 +9,7 @@ type RoadSystem = [Section]
 optimalPath :: RoadSystem -> Path
 optimalPath roadSystem =
     let (bestAPath, bestBPath) = foldl roadStep ([],[]) roadSystem
-     in if sum (map snd bestAPath) <= sum (map snd bestBPath)
+        in if sum (map snd bestAPath) <= sum (map snd bestBPath)
             then bestAPath
             else bestBPath
 

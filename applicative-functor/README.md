@@ -1,4 +1,4 @@
-# applicative 函子
+# Applicative 函子
 
 ## IO 函子
 
@@ -27,10 +27,7 @@ fmap :: (a -> b) -> (r -> a) -> (r -> b)
 
 2. 接受函数，把它提升为操作函子值的函数
 
-``` haskell
 -- 类似 Functor f => f a -> f [a] 意味着这个函数能处理任何函子，取决于函子
-
-```
 
 ## 函子定律
 
@@ -101,7 +98,7 @@ pure elem <*> Just 3 <*> [1,2,3]
 f <$> x = fmap f x
 ```
 
-风格演进：
+3. 风格演进：
 
 ``` haskell
 -- Maybe 为例
@@ -110,7 +107,7 @@ pure f <*> Just a <*> Just b <*> Just c
 f <$> Just a <*> Just b <*> Just c
 ```
 
-列表：
+4. 列表：
 
 ``` haskell
 instance Applicative [] where
@@ -124,5 +121,76 @@ instance Applicative [] where
 pure f <*> xs -- [f] <*> xs -- fmap f xs
 pure f -- [f]
 ```
+
+对于列表 `pure f <*> xs` 相当于 `fmap f xs`
+
+5. IO:
+
+``` haskell
+instance Applicative IO where
+    pure = return
+    a <*> b = do
+        f <- a
+        x <- b
+        return (f x)
+```
+
+两个 `applicative` 值之间使用 `<*>` 结果还是一个 `applicative` 值
+
+6. 函数：
+
+``` haskell
+instance Applicative ((->) r) where
+    pure x = (\_ -> x)
+    f <*> g = \x -> f x (g x)
+
+-- pure
+(pure 3) "blah"
+pure 3 "blah"
+-- result: 3
+
+-- <*> 
+-- 接受两个参数，可以看得到
+```
+
+7. `ZipList`
+
+``` haskell
+instance Applicative ZipList where
+    pure x = ZipList (repeat x)
+    ZipList fs <*> ZipList xs = ZipList (zipWith (\f x -> fx) fs xs)
+
+getZipList :: ZipList a -> [a]
+-- 转化 ZipList 成 array
+
+-- (,) 等同于 (\x y -> (x,y))，可以同理生成多元组
+```
+
+除 `zipWith` 以外，还提供了 `zipWith{n}(3<=n<=7)` 一簇函数，将 n 个列表捆绑到一起，但是 使用 `ZipList` 的 `applicative` 风格可以任意列表数量
+
+8. applicative 定律
+
+``` haskell
+pure f <*> x = fmap f x = f <$> x
+
+pure id <*> u = u
+pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+pure f <*> pure x  = pure (f x)
+u <*> pure y = pure ($ y) <*> u
+```
+
+### Applicative 实用函数
+``` haskell
+-- Control.Applicative liftA2
+liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c
+
+-- sequenceA
+sequenceA :: (Applicative f) => [f a] => f [a]
+sequenceA [] = pure []
+sequenceA (x:xs) = (:) <$> x <*> sequenceA xs
+
+-- sequenceA === sequence!!
+```
+
 
 

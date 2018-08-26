@@ -1,2 +1,3 @@
-foo :: Int
-foo = 1
+sequenceA' :: (Applicative f) => [f a] -> f [a]
+sequenceA' [] = pure []
+sequenceA' (x:xs) = (:) <$> x <*> sequenceA xs
