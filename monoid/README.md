@@ -135,4 +135,26 @@ instance Monoid (First a) where
     First Nothing `mappend` x = x
 ```
 
+## `Monoid` 折叠
+
+很多数据结构适合折叠，类型类：`Foldable`
+
+``` haskell
+foldl (*) 1 [1,2,3]  -- 7
+foldr (*) 2 (Just 3) -- 6
+
+foldr :: Foldable a => (a -> b -> b) -> b -> t a -> b
+
+foldMap :: (Monoid m, Foldable t) => (a -> m) -> t a -> m
+
+data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show)
+
+instance F.Foldable Tree where
+    foldMap f EmptyTree = mempty
+    foldMap f (Node x l r) = F.foldMap f l `mappend`
+                             f x           `mappend`
+                             F.foldMap f r
+```
+
+
 
