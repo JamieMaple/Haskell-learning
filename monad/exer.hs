@@ -1,4 +1,7 @@
+import Data.Monoid
+import Data.Semigroup
 import Control.Monad
+import Control.Monad.Writer
 
 type Birds = Int
 type Pole = (Birds, Birds)
@@ -75,4 +78,81 @@ reachIn3Pos start end = do
 
 --(<=<) :: (Monad m) => (b -> m c) -> (a -> m b) -> (a -> m c)
 --f <=< g = (\x -> g x >>= f)
+
+logNumber :: Int -> Writer [String] Int
+logNumber x = writer (x, ["Got number:" ++ show x])
+
+multWithLog :: Writer [String] Int
+multWithLog = do
+    a <- logNumber 3
+    b <- logNumber 5
+    tell ["Gonna multiply these two"]
+    return (a*b)
+
+gcd' :: Int -> Int -> Int
+gcd' a b
+    | b == 0 = a
+    | otherwise = gcd' b (a `mod` b)
+
+gcd'' :: Int -> Int -> Writer [String] Int
+gcd'' a b
+    | b == 0 = do
+        tell ["Finished with " ++ show a]
+        return a
+    | otherwise = do
+        tell [show a ++ " mod " ++ show b ++ " = " ++ show (a `mod` b)]
+        gcd'' b (a `mod` b)
+
+newtype DiffList a = DiffList { getDiffList :: [a] -> [a] }
+
+toDiffList :: [a] -> DiffList a
+toDiffList xs = DiffList (xs++)
+
+fromDiffList :: DiffList a -> [a]
+fromDiffList (DiffList f) = f []
+
+-- for original book, ghci 8.4 will get a problem
+instance Semigroup (DiffList a) where
+  (DiffList f) <> (DiffList g) = DiffList (\xs -> f (g xs))
+
+instance Monoid (DiffList a) where
+  mempty = DiffList (\xs -> [] ++ xs)
+  --(DiffList f) <> (DiffList g) = DiffList (\xs -> f (g xs))
+
+gcdReverse :: Int -> Int -> Writer (DiffList String) Int 
+gcdReverse a b
+    | b == 0 = do
+        tell (toDiffList ["Finished with " ++ show a])
+        return a
+    | otherwise = do
+        result <- gcdReverse b (a `mod` b)
+        tell (toDiffList [show a ++ " mod " ++ show b ++ " = " ++ show (a `mod` b)])
+        return result
+
+-- faster one
+-- fromDiffList . snd . runWriter . finalCountDown $ 500000
+finalCountDown :: Int -> Writer (DiffList String) ()
+finalCountDown 0 = do
+    tell (toDiffList ["0"])
+finalCountDown x = do
+    finalCountDown (x-1)
+    tell (toDiffList [show x])
+
+-- slower one
+-- very slow one ...
+-- snd . runWriter . finalCountDown' $ 500000
+finalCountDown' :: Int -> Writer [String] ()
+finalCountDown' 0 = do
+    tell ["0"]
+finalCountDown' x = do
+    finalCountDown' (x-1)
+    tell [show x]
+
+foo' :: Writer String Int
+foo' = do
+    tell "!"
+    a <- writer (1, "Hello")
+    tell "World"
+    return a
+-- !HelloWorld
 

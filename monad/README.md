@@ -72,6 +72,14 @@ instance Monad [] where
     fail _ = [] -- 非确定性计算，表示失败的 Monad 值
 ```
 
+*MonadPlus* 表示具有 `monoid` 行为的 `monad`
+
+``` haskell
+class Monad => MonadPlus m where
+    mzero :: m a
+    mplus :: m a -> m a -> m a
+```
+
 列表推导式是列表 `Monad` 的语法糖
 
 ``` haskell
@@ -150,5 +158,54 @@ f <=< (g <=< h)
 (f <=< g) <=> h
 ```
 
+## 其他 `Monad`
+
+### `Writer`
+
+用来表示附有日志的值，所有日志都会被合并一起并附在结果值上
+
+``` haskell
+applyLog :: (a, String) -> (a -> (b, String))
+applyLog (x, log) f = let (y, newLog) = f x in (y, log ++ newLog)
+
+-- update with monoid
+applyLog :: (Monoid m) => (a, m) -> (a -> (b, m)) -> (b, m)
+applyLog (x, log) f = let (y, newLog) = f x in (y, log `mappend` newLog)
+```
+
+#### `Writer` 类型类
+
+``` haskell
+-- Control.Monad.Writer
+-- 使用 `newtype` 有别于普通的类型
+newtype Writer w a = Writer { runWriter :: (a,w) }
+
+instance (Monoid w) => Monad (Writer w) where
+    return x = Writer (x, mempty)
+    (Writer (x,v)) >>= f = let (Writer (y,v')) = f x in Writer (y, v `mappend` v')
+
+writer :: MonadWriter w m => (a, w) -> m a -- 接受一个包含有值和 `monoid` 的二元组，返回一个 `monad`
+tell :: w -> m () -- 接受一个 `monoid` 返回一个 `()` 的 `monad`
+```
+
+`Writer` 也可以配合 `do` 实现
+
+**切记低效的列表构造**，通常在写或者改造函数的时候尽量采取右结合的方式
+
+#### 差分列表 
+
+> 注意：`ghci` 8.4v 有所变化，要得到 `Monoid` 约束同时需要得到 `Semigroup` 的约束
+> 猜测 `mappend` 效果同 `<>` 是一样的
+
+``` haskell
+-- instance list monoid
+-- Data.Semigroup
+instance Semigroup [a] where
+    (<>) = (++)
+-- Data.Monoid
+instance Monoid [a] where
+    mempty = []
+-- [参考](https://wiki.haskell.org/Monoid)
+```
 
 
