@@ -1,3 +1,5 @@
+import Data.Monoid
+import Data.Semigroup
 import qualified Data.Foldable as F
 
 newtype Pair b a = Pair { getPair :: (a, b) }
@@ -12,10 +14,12 @@ lengthCompare x y = (length x `compare` length y) `mappend`
 newtype First' a = First' { getFirst' :: Maybe a }
     deriving (Eq, Show, Read)
 
---instance Monoid (First' a) where
-    --mempty = First' Nothing
-    --First' (Just x) `mappend` _ = First' (Just x)
-    --First' Nothing `mappend` x = x
+instance Semigroup (First' a) where
+    First' (Just x) <> _ = First' (Just x)
+    First' Nothing <> x = x
+
+instance Monoid (First' a) where
+    mempty = First' Nothing
 -- Last 实现与 First 相反
 
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show)
