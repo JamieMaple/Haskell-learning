@@ -1,6 +1,10 @@
+import Data.List
+import Data.Ratio
 import Data.Monoid
-import Data.Semigroup
+import System.Random
 import Control.Monad
+import Data.Semigroup
+import Control.Monad.State
 import Control.Monad.Writer
 
 type Birds = Int
@@ -155,4 +159,157 @@ foo' = do
     tell "World"
     return a
 -- !HelloWorld
+
+addStuff :: Int -> Int
+addStuff = do
+    a <- (*2)
+    b <- (+10)
+    return (a+b)
+
+type Stack = [Int]
+
+-- Control.Monad.Stack
+getStack :: State Stack Stack
+getStack = state (\s -> (s, s))
+
+putStack :: Stack -> State Stack ()
+putStack newState = state $ \s -> ((), newState)
+
+pop :: State Stack Int
+pop = state $ \(x:xs) -> (x, xs)
+
+push :: Int -> State Stack ()
+push a = state $ \xs -> ((), a:xs)
+
+stackManip :: State Stack Int
+stackManip = do
+    push 3
+    a <- pop
+    pop
+
+stackStuff :: State Stack ()
+stackStuff = do
+    a <- pop
+    if a == 5
+        then push 5
+        else do
+            push 3
+            push 8
+
+randomSt :: (RandomGen g, Random a) => State g a
+randomSt = state random
+
+threeCoins :: State StdGen (Bool, Bool, Bool)
+threeCoins = do
+    a <- randomSt
+    b <- randomSt
+    c <- randomSt
+    return (a, b, c)
+
+getBirdsInfo :: Pole -> String
+getBirdsInfo (left, right) = "Birds: left " ++ show left ++ ", right " ++ show right
+
+landLeft' :: Birds -> Pole -> Either String Pole
+landLeft' n (left, right)
+    | abs ((left + n) - right) < 4 = Right (left + n, right)
+    | otherwise = Left $ getBirdsInfo (left + n, right)
+
+landRight' :: Int -> Pole -> Either String Pole
+landRight' n (left, right)
+    | abs (left - (right + n)) < 4 = Right (left, right + n)
+    | otherwise = Left $ getBirdsInfo (left, right + n)
+
+routine' :: Either String Pole
+routine' = do
+    start <- return (0, 0)
+    first <- landLeft' 1 start
+    second <- landRight' 3 first
+    landLeft' 10 second
+
+keepSmall :: Int -> Writer [String] Bool
+keepSmall x
+    | x < 4 = do
+        tell ["Keeping" ++ show x]
+        return True
+    | otherwise = do
+        tell [show x ++ " is too large, throwing it away"]
+        return False
+
+powerset :: [a] -> [[a]]
+powerset xs = filterM (\x -> [True, False]) xs
+
+binSmalls :: Int -> Int -> Maybe Int
+binSmalls acc x
+    | x > 9 = Nothing
+    | otherwise = Just (acc + x)
+
+solveRPN :: String -> Maybe Double
+solveRPN st = do
+    [result] <- foldM foldingFunction [] (words st)
+    return result
+
+readMaybe :: (Read a) => String -> Maybe a
+readMaybe st = case reads st of [(x, "")] -> Just x
+                                _ -> Nothing
+
+foldingFunction :: [Double] -> String -> Maybe [Double]
+foldingFunction (x:y:ys) "*" = return ((y*x):ys)
+foldingFunction (x:y:ys) "+" = return ((y+x):ys)
+foldingFunction (x:y:ys) "-" = return ((y-x):ys)
+foldingFunction xs numberString = liftM (:xs) (readMaybe numberString)
+
+-- param steps for knight movement
+inMany :: Int -> KnightPos -> [KnightPos]
+inMany x start = return start >>= foldr (<=<) return (replicate x moveKnight)
+
+canReachIn :: Int -> KnightPos -> KnightPos -> Bool
+canReachIn x start end = end `elem` inMany x start
+
+newtype Prob a = Prob { getProb :: [(a, Rational)] } deriving Show
+
+flatten :: Prob (Prob a) -> Prob a
+flatten (Prob xs) = Prob $ concat $ map multAll xs
+    where multAll (Prob innerxs, p) = map (\(x, r) -> (x, p*r)) innerxs
+
+instance Functor Prob where
+    fmap f (Prob xs) = Prob $ map (\(x,p) -> (f x, p)) xs
+
+instance Applicative Prob where
+    pure = return
+    (Prob [(f, _)]) <*> something = fmap f something
+
+instance Monad Prob where
+    return x = Prob [(x,1%1)]
+    m >>= f = flatten (fmap f m)
+    fail _ = Prob []
+
+thisSituation :: Prob (Prob Char)
+thisSituation = Prob
+    [(Prob [('a', 1%2), ('b', 1%2)], 1%4)
+    ,(Prob [('c', 1%2), ('d', 1%2)], 3%4)
+    ]
+
+data Coin = Heads | Tails deriving (Show, Eq)
+
+coin :: Prob Coin
+coin = Prob [(Heads, 1%2), (Tails, 1%2)]
+
+loadedCoin :: Prob Coin
+loadedCoin = Prob [(Heads, 1%10), (Tails, 9%10)]
+
+flipThree :: Prob Bool
+flipThree = do
+    a <- coin
+    b <- coin
+    c <- loadedCoin
+    return (all (==Tails) [a,b,c])
+
+sumCoinFoldingFunc :: [(Bool, Rational)] -> (Bool, Rational) -> [(Bool, Rational)]
+sumCoinFoldingFunc [] (False, r) = [(False, r), (True, 0)]
+sumCoinFoldingFunc [] (True, r)  = [(False, 0), (True, r)]
+sumCoinFoldingFunc (xs:ys:[]) x  = case x of (False, r) -> [(False, r + (snd xs)), ys]
+                                             (True, r)  -> [xs, (True, r + (snd ys))]
+
+sumCoin :: Prob Bool -> Prob Bool
+sumCoin (Prob xs) = Prob $ foldl sumCoinFoldingFunc [] xs
 
