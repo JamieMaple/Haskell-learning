@@ -1,0 +1,18 @@
+Name:               mypretty
+Version:            0.1
+Cabal-Version:      >= 1.2
+
+-- This is a comment
+
+Synopsis:           My pretty printing lib, with JSON support
+Description:
+    A simple pretty printing library that illustrates how to
+    develop a Haskell lib.
+Author:             Jamie Maple
+Maintainer:         jamiemaple007@gmail.com
+
+library
+    Exposed-Modules:Prettify
+                    PrettyJSON
+                    SimpleJSON
+    Build-Depends:  base >= 2.0
