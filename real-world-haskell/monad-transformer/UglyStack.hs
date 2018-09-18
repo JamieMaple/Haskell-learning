@@ -25,7 +25,6 @@ runApp k maxDepth =
         state = AppState 3
     in runStateT (runReaderT k config) state
 
-
 constrainedCount :: Int -> FilePath -> App [(FilePath, Int)]
 constrainedCount curDepth path = do
     contents <- liftIO .  listDirectory $ path
