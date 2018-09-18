@@ -28,3 +28,5 @@ countEntriesTrad' path = do
         isDir <- liftIO . doesDirectoryExist $ newName
         when isDir $ countEntriesTrad' newName
 
+main :: IO ()
+main = putStrLn "not implemented"

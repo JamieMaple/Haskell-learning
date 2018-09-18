@@ -1,3 +1,5 @@
+module LocalReader where
+
 import Control.Monad.Reader
 
 myName :: String -> Reader String String

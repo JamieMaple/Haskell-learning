@@ -4,6 +4,9 @@ import Control.Monad.State
 import Control.Monad.Trans
 import Control.Monad.Reader
 
+main :: IO ()
+main = putStrLn "not implemented"
+
 test :: IO [FilePath]
 test = do
     contents <- liftIO . listDirectory $ ".."
@@ -50,5 +53,18 @@ testIO :: String -> IO [FilePath]
 testIO path = do
     sub <- liftIO . listDirectory $ path
     return sub
+
+foo :: IO (Maybe String)
+foo = do
+    s <- getLine
+    case s of
+        "" -> return Nothing
+        s -> return $ Just s
+
+bar :: Reader String [String]
+bar = do
+    value <- ask
+    new <- local (++"!!") ask
+    return [value, new]
 
 

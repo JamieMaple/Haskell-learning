@@ -25,6 +25,7 @@ runApp k maxDepth =
         state = AppState 3
     in runStateT (runReaderT k config) state
 
+
 constrainedCount :: Int -> FilePath -> App [(FilePath, Int)]
 constrainedCount curDepth path = do
     contents <- liftIO .  listDirectory $ path
@@ -46,6 +47,26 @@ constrainedCount curDepth path = do
 newtype MyApp a = MyA {
     runA :: ReaderT AppConfig (StateT AppState IO) a }
     --deriving (Monad, MonadIO, MonadReader AppConfig, MonadState AppState)
+
+implicitGet :: App AppState
+implicitGet = get
+
+type Foo = StateT Int (State String)
+
+outerPut :: Int -> Foo ()
+outerPut = put
+
+innerPut :: String -> Foo ()
+innerPut = lift . put
+
+type Bar = ReaderT Bool Foo
+
+barPut :: String -> Bar ()
+barPut = lift . lift . put
+
+-- 显式
+explicitGet :: App AppState
+explicitGet = lift get
 
 runMyApp :: MyApp a -> Int -> IO (a, AppState)
 runMyApp k maxDepth =

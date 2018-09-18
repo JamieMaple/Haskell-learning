@@ -1,5 +1,9 @@
 # `Monad` transformer
 
+### What
+
+> special types that allow us to roll two monads into a single one that shares the behavior of both
+
 ``` haskell
 -- examples
 newtype State s a = State { runState :: s -> (a, s) }
@@ -17,6 +21,4 @@ class (Monad m) => MonadReader r m | m -> r where
 -- m represent the immutable state that reader monad carries around
 -- `Reader r` monad is an instance of the `MonadReader` class
 ```
-
-
 
