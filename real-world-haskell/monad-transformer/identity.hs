@@ -1,8 +1,8 @@
 module Identity where
 
-import Control.Monad
-import Control.Monad.Trans
-import Control.Applicative
+--import Control.Monad
+import Control.Monad.Trans (MonadTrans, lift)
+--import Control.Applicative
 
 newtype Identity a = Identity { runIdentity :: a } deriving Show
 
