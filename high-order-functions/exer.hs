@@ -35,12 +35,18 @@ filter' f (x:xs)
     | f x       = x:filter' f xs
     | otherwise = filter' f xs
 
+const :: a -> a -> b
+const a _ = a
+
 -- collatz sequence
 chain :: Integer -> [Integer]
 chain 1 = [1]
 chain n
     | odd n  = n:chain (n*3 + 1)
     | even n = n:chain (n `div` 2)
+
+id :: a -> a
+id v = v
 
 numLongChains :: Int
 numLongChains = length (filter isLong (map chain [1..1000]))

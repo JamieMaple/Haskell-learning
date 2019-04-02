@@ -24,6 +24,10 @@ instance Monoid (First' a) where
 
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show)
 
+leafs :: Tree a -> Int
+leafs EmptyTree = 0
+leafs (Node _ l r) = 1 + leafs l + leafs r
+
 testTree = Node 5
     (Node 3
         (Node 1  EmptyTree EmptyTree)
